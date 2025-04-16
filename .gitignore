@@ -1,0 +1,10 @@
+# 缓存文件
+__pycache__/
+# Python编译器生成的文件
+*.py[cod]
+# Jupyter Notebook检查点
+.ipynb_checkpoints
+
+# 项目输出结果
+results/
+*.out

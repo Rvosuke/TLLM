@@ -78,8 +78,8 @@ parser.add_argument('--output_attention', action='store_true', help='whether to 
 parser.add_argument('--patch_len', type=int, default=16, help='patch length')
 parser.add_argument('--stride', type=int, default=8, help='stride')
 parser.add_argument('--prompt_domain', type=int, default=0, help='')
-parser.add_argument('--llm_model', type=str, default='LLAMA', help='LLM model') # LLAMA, GPT2, BERT
-parser.add_argument('--llm_dim', type=int, default='4096', help='LLM model dimension')# LLama7b:4096; GPT2-small:768; BERT-base:768
+parser.add_argument('--llm_model', type=str, default='GPT2', help='LLM model') # LLAMA, GPT2, BERT
+parser.add_argument('--llm_dim', type=int, default='768', help='LLM model dimension')# LLama7b:4096; GPT2-small:768; BERT-base:768
 
 # optimization
 parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
@@ -266,5 +266,5 @@ for ii in range(args.itr):
 accelerator.wait_for_everyone()
 if accelerator.is_local_main_process:
     path = './checkpoints'  # unique checkpoint saving path
-    del_files(path)  # delete checkpoint files
+    # del_files(path)  # delete checkpoint files
     accelerator.print('success delete checkpoints')

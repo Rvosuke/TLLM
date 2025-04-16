@@ -1,12 +1,13 @@
 from torch.utils.data import DataLoader
 
-from data_provider_pretrain.data_loader import Dataset_ETT_hour, Dataset_ETT_minute
+from data_provider_pretrain.data_loader import Dataset_ETT_hour, Dataset_ETT_minute, Dataset_Custom
 
 data_dict = {
     'ETTh1': Dataset_ETT_hour,
     'ETTh2': Dataset_ETT_hour,
     'ETTm1': Dataset_ETT_minute,
     'ETTm2': Dataset_ETT_minute,
+    'beam' : Dataset_Custom,
 }
 
 
