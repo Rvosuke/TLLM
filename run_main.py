@@ -51,6 +51,7 @@ parser.add_argument('--freq', type=str, default='h',
                          'options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], '
                          'you can also use more detailed freq like 15min or 3h')
 parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
+parser.add_argument('--train_rate', type=float, default=0.8, help='train data rate')
 
 # forecasting task
 parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
@@ -77,8 +78,8 @@ parser.add_argument('--output_attention', action='store_true', help='whether to 
 parser.add_argument('--patch_len', type=int, default=16, help='patch length')
 parser.add_argument('--stride', type=int, default=8, help='stride')
 parser.add_argument('--prompt_domain', type=int, default=0, help='')
-parser.add_argument('--llm_model', type=str, default='LLAMA', help='LLM model') # LLAMA, GPT2, BERT
-parser.add_argument('--llm_dim', type=int, default='4096', help='LLM model dimension')# LLama7b:4096; GPT2-small:768; BERT-base:768
+parser.add_argument('--llm_model', type=str, default='BERT', help='LLM model') # LLAMA, GPT2, BERT
+parser.add_argument('--llm_dim', type=int, default='768', help='LLM model dimension')# LLama7b:4096; GPT2-small:768; BERT-base:768
 
 
 # optimization
@@ -88,7 +89,7 @@ parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
 parser.add_argument('--align_epochs', type=int, default=10, help='alignment epochs')
 parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
 parser.add_argument('--eval_batch_size', type=int, default=8, help='batch size of model evaluation')
-parser.add_argument('--patience', type=int, default=10, help='early stopping patience')
+parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
 parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
 parser.add_argument('--des', type=str, default='test', help='exp description')
 parser.add_argument('--loss', type=str, default='MSE', help='loss function')
@@ -99,13 +100,13 @@ parser.add_argument('--llm_layers', type=int, default=6)
 parser.add_argument('--percent', type=int, default=100)
 
 args = parser.parse_args()
-ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
-deepspeed_plugin = DeepSpeedPlugin(hf_ds_config='./ds_config_zero2.json')
-accelerator = Accelerator(kwargs_handlers=[ddp_kwargs], deepspeed_plugin=deepspeed_plugin)
+ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)  # 处理多GPU运行未使用的参数
+deepspeed_plugin = DeepSpeedPlugin(hf_ds_config='./ds_config_zero2.json')  # 使用DeepSpeed进行训练
+accelerator = Accelerator(kwargs_handlers=[ddp_kwargs], deepspeed_plugin=deepspeed_plugin)   # 使用Accelerator进行训练
 
 for ii in range(args.itr):
     # setting record of experiments
-    setting = '{}_{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_{}_{}'.format(
+    setting: str = '{}_{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_{}_{}'.format(
         args.task_name,
         args.model_id,
         args.model,
@@ -226,6 +227,17 @@ for ii in range(args.itr):
                 time_now = time.time()
 
             if args.use_amp:
+                """
+                ### 混合精度训练的优势
+
+                1. **加速训练**：使用 16 位浮点数（FP16）代替某些操作中的 32 位浮点数（FP32），可以减少内存使用并加速计算，尤其是在支持 Tensor Cores 的 NVIDIA GPU 上（如 Volta、Turing、Ampere 架构）。
+
+                2. **减少内存占用**：由于使用了 16 位浮点数，模型的内存占用会减少，允许使用更大的批量大小或更大的模型。
+
+                3. **保持精度**：通过在数值敏感的操作中保留 FP32，同时在其他操作中使用 FP16，混合精度训练可以在加速的同时保持与纯 FP32 训练相当的精度。
+
+                在这个项目中，`use_amp` 参数允许用户选择是否启用这一功能来加速训练过程，同时保持模型的性能。
+                """
                 scaler.scale(loss).backward()
                 scaler.step(model_optim)
                 scaler.update()

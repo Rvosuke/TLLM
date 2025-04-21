@@ -10,24 +10,16 @@ data_dict = {
     'Traffic': Dataset_Custom,
     'Weather': Dataset_Custom,
     'm4': Dataset_M4,
+    'beam' : Dataset_Custom,
 }
 
 
 def data_provider(args, flag):
-    Data = data_dict[args.data]
+    Data = data_dict[args.data]  # data_dict["beam"]  # Dataset_Custom
     timeenc = 0 if args.embed != 'timeF' else 1
     percent = args.percent
-
-    if flag == 'test':
-        shuffle_flag = False
-        drop_last = True
-        batch_size = args.batch_size
-        freq = args.freq
-    else:
-        shuffle_flag = True
-        drop_last = True
-        batch_size = args.batch_size
-        freq = args.freq
+    freq = args.freq
+    shuffle_flag = False if flag == 'test' else True
 
     if args.data == 'm4':
         drop_last = False
@@ -43,6 +35,7 @@ def data_provider(args, flag):
             seasonal_patterns=args.seasonal_patterns
         )
     else:
+        drop_last = False
         data_set = Data(
             root_path=args.root_path,
             data_path=args.data_path,
@@ -53,11 +46,12 @@ def data_provider(args, flag):
             timeenc=timeenc,
             freq=freq,
             percent=percent,
-            seasonal_patterns=args.seasonal_patterns
+            seasonal_patterns=args.seasonal_patterns,
+            train_rate=args.train_rate
         )
     data_loader = DataLoader(
         data_set,
-        batch_size=batch_size,
+        batch_size=args.batch_size,
         shuffle=shuffle_flag,
         num_workers=args.num_workers,
         drop_last=drop_last)

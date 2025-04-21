@@ -1,0 +1,6 @@
+The 5G Network Traffic dataset provides comprehensive metrics for analyzing 5G cellular network performance in urban environments. The dataset contains two key measurement categories collected over a continuous 24-hour period with hourly resolution.
+This 5G Traffic dataset measures the throughput (data volume) across different cell sites and beam configurations. For each configuration, it provides:
+   - Raw throughput values
+   - Moving average values (MA) computed over a 9-hour window to capture longer traffic patterns
+   - Logarithmic transformation (base 10) of the moving average values to account for the large variance in traffic volumes
+The dataset demonstrates clear daily patterns, with significant variations between peak and off-peak hours, providing valuable insights for network capacity planning, user behavior analysis, and traffic prediction tasks. The combination of raw values, moving averages, and logarithmic transformations enables comprehensive analysis of both short-term fluctuations and long-term trends in 5G network utilization.

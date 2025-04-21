@@ -210,7 +210,8 @@ class Dataset_Custom(Dataset):
     def __init__(self, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=True, timeenc=0, freq='h', percent=100,
-                 seasonal_patterns=None):
+                 seasonal_patterns=None,
+                 train_rate=0.8):
         if size == None:
             self.seq_len = 24 * 4 * 4
             self.label_len = 24 * 4
@@ -233,12 +234,12 @@ class Dataset_Custom(Dataset):
 
         self.root_path = root_path
         self.data_path = data_path
-        self.__read_data__()
+        self.__read_data__(train_rate=train_rate)
 
         self.enc_in = self.data_x.shape[-1]
         self.tot_len = len(self.data_x) - self.seq_len - self.pred_len + 1
 
-    def __read_data__(self):
+    def __read_data__(self, train_rate=0.8):
         self.scaler = StandardScaler()
         df_raw = pd.read_csv(os.path.join(self.root_path,
                                           self.data_path))
@@ -250,15 +251,20 @@ class Dataset_Custom(Dataset):
         cols.remove(self.target)
         cols.remove('date')
         df_raw = df_raw[['date'] + cols + [self.target]]
-        num_train = int(len(df_raw) * 0.7)
-        num_test = int(len(df_raw) * 0.2)
+        num_train = int(len(df_raw) * train_rate)
+        vali_rate = 0.1
+        test_rate = 1 - train_rate - vali_rate
+        num_test = int(len(df_raw) * test_rate)
         num_vali = len(df_raw) - num_train - num_test
         border1s = [0, num_train - self.seq_len, len(df_raw) - num_test - self.seq_len]
         border2s = [num_train, num_train + num_vali, len(df_raw)]
-        border1 = border1s[self.set_type]
-        border2 = border2s[self.set_type]
+        border1 = border1s[self.set_type]  # 起始位置
+        border2 = border2s[self.set_type]  # 结束位置
 
-        if self.set_type == 0:
+        if self.set_type == 0:  # 对于训练集，结束位置减去序列长度再乘以百分比
+            # 这里的百分比是指训练集的百分比
+            # 这里的seq_len是指模型输入的序列长度
+            # 这里的border2是指训练集的结束位置
             border2 = (border2 - self.seq_len) * self.percent // 100 + self.seq_len
 
         if self.features == 'M' or self.features == 'MS':
