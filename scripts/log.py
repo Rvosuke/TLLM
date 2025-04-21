@@ -26,7 +26,7 @@ for filename in os.listdir(log_folder):
             log_content = file.read()
 
         # 正则表达式提取数据：Epoch、Train Loss、Vali Loss、Test Loss 和 MAE Loss
-        pattern = r"Epoch: (\d+) \| Train Loss: ([\d.]+) Vali Loss: ([\d.]+) Test Loss: ([\d.]+) MAE Loss: ([\d.]+)"
+        pattern = r"Epoch: (\d+) \| Train Loss: ([\d.]+) Test Loss: ([\d.]+) MAE Loss: ([\d.]+)"
         matches = re.findall(pattern, log_content)
 
         # 将提取的数据存储为字典
@@ -39,16 +39,15 @@ for filename in os.listdir(log_folder):
         }
 
         for match in matches:
-            epoch, train_loss, vali_loss, test_loss, mae_loss = match
+            epoch, train_loss, test_loss, mae_loss = match
             data["epoch"].append(int(epoch))
             data["train_loss"].append(float(train_loss))
-            data["vali_loss"].append(float(vali_loss))
             data["test_loss"].append(float(test_loss))
             data["mae_loss"].append(float(mae_loss))
 
         # 绘制单独的曲线图并保存到对应输出目录
-        metrics = ["train_loss", "vali_loss", "test_loss", "mae_loss"]
-        titles = ["Train Loss", "Validation Loss", "Test Loss", "MAE Loss"]
+        metrics = ["train_loss", "test_loss", "mae_loss"]
+        titles = ["Train Loss", "Test Loss", "MAE Loss"]
 
         for metric, title in zip(metrics, titles):
             plt.figure(figsize=(8, 5))
@@ -70,6 +69,6 @@ for filename in os.listdir(log_folder):
         # 另外在输出目录中创建一个.csv文件，来存储提取的数据
         csv_file_path = os.path.join(output_dir, "metrics.csv")
         with open(csv_file_path, "w") as csv_file:
-            csv_file.write("epoch,train_loss,vali_loss,test_loss,mae_loss\n")
+            csv_file.write("epoch,train_loss,test_loss,mae_loss\n")
             for i in range(len(data["epoch"])):
-                csv_file.write(f"{data['epoch'][i]},{data['train_loss'][i]},{data['vali_loss'][i]},{data['test_loss'][i]},{data['mae_loss'][i]}\n")
+                csv_file.write(f"{data['epoch'][i]},{data['train_loss'][i]},{data['test_loss'][i]},{data['mae_loss'][i]}\n")

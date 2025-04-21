@@ -8,3 +8,8 @@ __pycache__/
 # 项目输出结果
 results/
 *.out
+test.sh
+run_all.sh
+checkpoints/
+*.checkpoints
+.vscode/

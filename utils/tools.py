@@ -36,7 +36,7 @@ def adjust_learning_rate(accelerator, optimizer, scheduler, epoch, args, printou
 
 
 class EarlyStopping:
-    def __init__(self, accelerator=None, patience=7, verbose=False, delta=0, save_mode=True):
+    def __init__(self, accelerator=None, patience=3, verbose=False, delta=0, save_mode=True):
         self.accelerator = accelerator
         self.patience = patience
         self.verbose = verbose
