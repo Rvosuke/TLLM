@@ -13,14 +13,6 @@ def process_file(input_path, output_path):
     df.replace('#N/A', np.nan, inplace=True)
     df.fillna(0, inplace=True)
 
-    # 复制 'value' 列为 'OT'
-    df['OT'] = df['value']
-
-    # 归一化数值列（不包括日期）
-    scaler = MinMaxScaler()
-    num_cols = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
-    df[num_cols] = scaler.fit_transform(df[num_cols])
-
     df.to_csv(output_path, index=False)
     print(f"数据已处理并保存到 {output_path}")
 
