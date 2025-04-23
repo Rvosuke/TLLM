@@ -6,7 +6,14 @@ mkdir -p $output_dir
 
 model_name=TimeLLM
 llama_layers=32
-master_port=23456
+master_port=51111
+if lsof -i:$master_port > /dev/null ; then
+    echo "Port $master_port is in use. Killing the process..."
+    pid=$(lsof -ti:$master_port)
+    kill -9 $pid
+    sleep 1
+    echo "Process using port $master_port has been terminated."
+fi
 num_process=2
 batch_size=32
 
@@ -20,13 +27,13 @@ src_num_data="processed_number_value_cell_2_beam_19.csv"
 target_num_data="processed_number_value_cell_2_beam_27.csv"
 
 # 源模型检查点路径
-src_thp_ckpt_long="./results/thp_cell_2_beam_0/long_term_train8.ckpt"
-src_thp_ckpt_short="./results/thp_cell_2_beam_0/short_term_train8.ckpt"
-src_num_ckpt_long="./results/number_value_cell_2_beam_19/long_term_train8.ckpt"
-src_num_ckpt_short="./results/number_value_cell_2_beam_19/short_term_train8.ckpt"
+src_thp_ckpt_long="./results/thp_cell_2_beam_0/long_term_forecast_train08.ckpt"
+src_thp_ckpt_short="./results/thp_cell_2_beam_0/short_term_forecast_train08.ckpt"
+src_num_ckpt_long="./results/number_value_cell_2_beam_19/long_term_forecast_train08.ckpt"
+src_num_ckpt_short="./results/number_value_cell_2_beam_19/short_term_forecast_train08.ckpt"
 
 # ============================= THP数据集迁移学习 =============================
-echo "开始THP数据迁移学习测试..."
+# echo "开始THP数据迁移学习测试..."
 
 # 1. 长序列预测 (thp数据集)
 echo "THP数据: 长序列预测迁移测试..."
