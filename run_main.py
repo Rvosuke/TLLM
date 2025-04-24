@@ -109,7 +109,7 @@ parser.add_argument('--visualize_predictions', action='store_true', help='是否
 
 args = parser.parse_args()
 # Check if we should use CPU or GPU with accelerate
-if torch.cuda.is_available():
+if torch.cuda.is_available() and args.is_training:
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
     deepspeed_plugin = DeepSpeedPlugin(hf_ds_config='./ds_config_zero2.json')
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs], deepspeed_plugin=deepspeed_plugin)
@@ -200,8 +200,8 @@ def visualize_predictions(args, model, test_data, test_loader, accelerator, outp
                     plt.subplot(pred.shape[2], 1, k+1)
                     
                     # 绘制输入序列
-                    x_indices = np.arange(input_len)
-                    plt.plot(x_indices, full_x[:input_len, k], 'b-', label='Input')
+                    x_indices = np.arange(input_len+1)
+                    plt.plot(x_indices, full_x[:input_len+1, k], 'b-', label='Input')
                     
                     # 绘制真实值
                     y_indices = np.arange(input_len, input_len + args.pred_len)
@@ -211,14 +211,14 @@ def visualize_predictions(args, model, test_data, test_loader, accelerator, outp
                     plt.plot(y_indices, pred[j, :, k].cpu().numpy(), 'r--', label='Prediction')
                     
                     # 添加分隔线表示预测开始的位置
-                    plt.axvline(x=input_len-1, color='gray', linestyle='--')
+                    plt.axvline(x=input_len, color='gray', linestyle='--')
                     
                     # 添加标题和图例
                     plt.title(f'Feature {k+1}')
                     plt.legend()
                     
                     if k == 0:
-                        plt.title(f'{args.model} - 序列{visualized+1} - Feature {k+1}')
+                        plt.title(f'{args.model} - Seq{visualized+1}')
                     if k == pred.shape[2] - 1:
                         plt.xlabel('Time Steps')
                 
@@ -452,7 +452,7 @@ else:
     accelerator.print(f"测试结果已保存到 {results_file}")
 
 accelerator.wait_for_everyone()
-if accelerator.is_local_main_process:
-    path = './checkpoints'  # unique checkpoint saving path
+# if accelerator.is_local_main_process:
+    # path = './checkpoints'  # unique checkpoint saving path
     # del_files(path)  # delete checkpoint files
-    accelerator.print('success delete checkpoints')
+    # accelerator.print('success delete checkpoints')

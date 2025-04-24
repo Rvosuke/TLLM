@@ -40,6 +40,7 @@ class Model(nn.Module):
         self.patch_len = configs.patch_len
         self.stride = configs.stride
         self.use_mixed_precision = getattr(configs, 'use_mixed_precision', False)
+        self.is_training = getattr(configs, 'is_training', False)
 
         if configs.llm_model == 'LLAMA':
             # self.llama_config = LlamaConfig.from_pretrained('/mnt/alps/modelhub/pretrained_model/LLaMA/7B_hf/')
@@ -239,7 +240,7 @@ class Model(nn.Module):
 
         x_enc = x_enc.permute(0, 2, 1).contiguous()
         # 检查设备类型，只在GPU上使用bfloat16
-        if self.use_mixed_precision and x_enc.device.type == 'cuda':
+        if self.use_mixed_precision and x_enc.device.type == 'cuda' and self.is_training:
             enc_out, n_vars = self.patch_embedding(x_enc.to(torch.bfloat16))
         else:
             enc_out, n_vars = self.patch_embedding(x_enc)  # 在CPU上保持原始精度
