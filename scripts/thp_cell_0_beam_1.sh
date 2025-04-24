@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # 创建输出日志目录
-output_dir="./results/thp_value_cell_0_beam_2/"
-data_path="processed_thp_value_cell_0_beam_2.csv"
+output_dir="./results/thp_value_cell_0_beam_1/"
+data_path="processed_thp_value_cell_0_beam_1.csv"
 mkdir -p $output_dir
 
 # 基本配置
 model_name=TimeLLM
-model_id=THP_CELL_0_BEAM_2
+model_id=THP_CELL_0_BEAM_1
 train_epochs=10
 learning_rate=0.01
 llama_layers=32

@@ -19,8 +19,8 @@ batch_size=32
 
 # 定义源数据集和目标数据集
 # 情景1: thp类数据集迁移 (cell2beam0 -> cell0beam1)
-src_thp_data="processed_thp_cell_2_beam_0.csv"
-target_thp_data="processed_thp_cell_0_beam_1.csv"
+src_thp_data="processed_thp_value_cell_2_beam_0.csv"
+target_thp_data="processed_thp_value_cell_0_beam_1.csv"
 
 # 情景2: number类数据集迁移 (cell2beam19 -> cell2beam27)
 src_num_data="processed_number_value_cell_2_beam_19.csv"
